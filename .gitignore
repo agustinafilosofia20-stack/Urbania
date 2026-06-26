@@ -1,0 +1,30 @@
+# Entorno y secretos
+.env
+.env.*
+
+# Python / Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+
+.venv/
+.venv312/
+venv/
+env/
+
+# Archivos subidos por usuarios
+media/
+
+# React / Vite
+node_modules/
+dist/
+dist-ssr/
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
