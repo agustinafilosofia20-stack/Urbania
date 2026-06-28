@@ -1,14 +1,30 @@
 from django.conf import settings
-import requests
 
 def analyze_image(image_path):
-    url = "https://serverless.roboflow.com/urbania/1"
+    try:
+        # IMPORT SOLO CUANDO SE USA (evita crash al importar Django)
+        from inference_sdk import InferenceHTTPClient
 
-    with open(image_path, "rb") as f:
-        response = requests.post(
-            url,
-            params={"api_key": settings.ROBOFLOW_API_KEY},
-            files={"file": f},
+        api_key = getattr(settings, "ROBOFLOW_API_KEY", None)
+
+        if not api_key:
+            return {"error": "Missing ROBOFLOW_API_KEY"}
+
+        if not image_path:
+            return {"error": "No image provided"}
+
+        client = InferenceHTTPClient(
+            api_url="https://serverless.roboflow.com",
+            api_key=api_key,
         )
 
-    return response.json()
+        return client.infer(
+            image_path,
+            model_id="urbania/1"
+        )
+
+    except Exception as e:
+        return {
+            "error": "Roboflow crashed safely",
+            "details": str(e)
+        }
