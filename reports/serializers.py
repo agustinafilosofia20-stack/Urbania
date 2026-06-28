@@ -10,15 +10,29 @@ class ReportSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         report = Report.objects.create(**validated_data)
-        try:
-            result = analyze_image(report.image.path)
 
-            # Debug: ver qué devuelve Roboflow
+        try:
+            # 🔥 CAMBIO IMPORTANTE: usar url o fallback seguro
+            image_path = None
+
+            if report.image:
+                try:
+                    image_path = report.image.path
+                except Exception:
+                    image_path = report.image.url  # fallback seguro en deploy
+
+            if not image_path:
+                report.category = "sin imagen"
+                report.confidence = 0
+                report.save()
+                return report
+
+            result = analyze_image(image_path)
+
             print("Roboflow result completo:", result)
 
             predictions = result.get("predictions", [])
 
-            # Debug: ver predictions
             print("Predictions:", predictions)
 
             if predictions:
