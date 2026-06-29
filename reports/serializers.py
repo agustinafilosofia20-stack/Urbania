@@ -12,17 +12,18 @@ class ReportSerializer(serializers.ModelSerializer):
         report = Report.objects.create(**validated_data)
 
         try:
-            # 🔥 FIX CLAVE: evitar crash en Render
             image_path = None
 
+            # 🔥 FIX RENDER: manejo seguro de ImageField
             if report.image:
                 try:
                     image_path = report.image.path
                 except Exception:
-                    image_path = None
+                    image_path = report.image.name  # fallback seguro
 
+            # Si no hay imagen, no rompe
             if not image_path:
-                report.category = "sin imagen (deploy)"
+                report.category = "sin imagen"
                 report.confidence = 0
                 report.save()
                 return report
